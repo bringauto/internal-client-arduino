@@ -24,5 +24,6 @@ In current directory should be generated .zip, which can be used as internal cli
 
 # TODO
 
- - Rewrite EnumMappers.cpp and ProtoSerializer.cpp to use nanopb library instead of Google protobuf
- - Add TCP implementation with Arduino libraries in Context.cpp
+ - Finish TCP implementation with Arduino libraries in Context.cpp (and maybe internal_client.cpp)
+ - Resolve using threads in send_status() function
+ - Finish README
