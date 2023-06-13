@@ -5,8 +5,8 @@
 #include <InternalProtocol.pb.h>
 
 #include <condition_variable>
-
-
+#include <SPI.h>
+#include <Ethernet.h>
 
 class Context {
 public:
@@ -91,9 +91,9 @@ public:
 
 private:
 	/// Socket connected to the server
-	int socket_ { -1};
+	EthernetClient socket_ {};
 	/// Server address saved for reconnecting
-	int8_t serverAddress_[4];
+	std::string serverAddress_;
 	/// Protobuf Device message
 	InternalProtocol_Device device_ {};
 	/// Command data pointer
