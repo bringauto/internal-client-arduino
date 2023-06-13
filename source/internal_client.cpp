@@ -51,7 +51,7 @@ int send_status(void *context, const struct buffer status, unsigned timeout) {
 
 	auto internalClientMessage = protobuf::ProtoSerializer::createInternalStatus(status,
 																				 currentContext->getDevice());
-	struct buffer statusMessage = protobuf::ProtoSerializer::serializeProtobufMessageToBuffer(internalClientMessage);
+	struct buffer statusMessage = protobuf::ProtoSerializer::serializeInternalClientMessageToBuffer(internalClientMessage);
 
 	int rc = OK;
 	auto threadStatus = std::async(std::launch::async, [&]() {

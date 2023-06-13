@@ -1,49 +1,61 @@
-#include <protobuf/ProtoSerializer.hpp>
+#include <ProtoSerializer.hpp>
 
 #include <general_error_codes.h>
 #include <internal_client.h>
-#include <google/protobuf/util/message_differencer.h>
+#include <pb_decode.h>
+
+#include <vector>
 
 namespace protobuf {
-struct buffer ProtoSerializer::serializeProtobufMessageToBuffer(const google::protobuf::Message &protobufMessage) {
+struct buffer ProtoSerializer::serializeInternalClientMessageToBuffer(InternalProtocol_InternalClient &internalClientMessage) {
 	struct buffer message {};
-	if ((allocate(&message, protobufMessage.ByteSizeLong())) == OK) {
-			protobufMessage.SerializeToArray(message.data, (int)message.size_in_bytes);
+	if ((allocate(&message, sizeof(InternalProtocol_InternalClient) == OK))) {
+		memcpy(&message.data, &internalClientMessage, message.size_in_bytes);
 	}
 	return message;
 }
 
-_InternalProtocol_InternalClient
-ProtoSerializer::createInternalStatus(const struct buffer &statusData, const _InternalProtocol_Device &device) {
-	_InternalProtocol_InternalClient internalClientMessage;
+InternalProtocol_InternalClient
+ProtoSerializer::createInternalStatus(const struct buffer &statusData, const InternalProtocol_Device &device) {
+	InternalProtocol_InternalClient internalClientMessage = InternalProtocol_InternalClient_init_zero;
 
-	_InternalProtocol_DeviceStatus *deviceStatus = internalClientMessage.mutable_devicestatus();
-	_InternalProtocol_Device *devicePtr = deviceStatus->mutable_device();
-	devicePtr->CopyFrom(device);
+	internalClientMessage.which_MessageType = InternalProtocol_InternalClient_deviceStatus_tag;
+	memcpy(&internalClientMessage.MessageType.deviceStatus.statusData.bytes, statusData.data, statusData.size_in_bytes);
 
-	deviceStatus->set_statusdata(statusData.data, statusData.size_in_bytes);
+	memcpy(&internalClientMessage.MessageType.deviceStatus.device, &device, sizeof(InternalProtocol_Device));
 
 	return internalClientMessage;
 }
 
 
 int ProtoSerializer::checkAndParseCommand(std::string &command, const std::string &internalServerCommand,
-										  const _InternalProtocol_Device& device) {
+										  const InternalProtocol_Device& device) {
 	if(internalServerCommand.empty()) {
 		return NOT_OK;
 	}
-	_InternalProtocol_InternalServer internalServerMessage;
+	InternalProtocol_InternalServer internalServerMessage = InternalProtocol_InternalServer_init_zero;
 
-	if (not internalServerMessage.ParseFromString(internalServerCommand)) {
+	std::vector<uint8_t> messageVector(internalServerCommand.begin(), internalServerCommand.end());
+	uint8_t *buffer = &messageVector[0];
+
+	pb_istream_t stream = pb_istream_from_buffer(buffer, internalServerCommand.size());
+
+	if (!pb_decode(&stream, InternalProtocol_InternalServer_fields, &internalServerMessage)) {
+		digitalWrite(LED_D0, HIGH); // Debug
 		return COMMAND_INCORRECT;
 	}
 
-	if (internalServerMessage.has_devicecommand()) {
-		if(not internalServerMessage.devicecommand().has_device() || google::protobuf::util::MessageDifferencer::Equals(internalServerMessage.devicecommand().device(), device)) {
+	if (internalServerMessage.which_MessageType == InternalProtocol_InternalServer_deviceCommand_tag) {
+		const InternalProtocol_DeviceCommand deviceConnectCommand = internalServerMessage.MessageType.deviceCommand;
+		if(not internalServerMessage.MessageType.deviceCommand.has_device || 
+			strcmp(deviceConnectCommand.device.deviceName, device.deviceName) != 0 || strcmp(deviceConnectCommand.device.deviceRole, device.deviceRole) != 0  ||
+			deviceConnectCommand.device.deviceType != device.deviceType || deviceConnectCommand.device.module != device.module || 
+			deviceConnectCommand.device.priority != device.priority) {
 			return DEVICE_INCORRECT;
 		}
-		auto commandSize = internalServerMessage.devicecommand().commanddata().length();
-		command.assign(internalServerMessage.devicecommand().commanddata().data(), commandSize);
+
+		auto commandSize = internalServerMessage.MessageType.deviceCommand.commandData.size;
+		command.assign(std::string((char *) internalServerMessage.MessageType.deviceCommand.commandData.bytes, commandSize));
 
 		return OK;
 	} else {
@@ -52,11 +64,12 @@ int ProtoSerializer::checkAndParseCommand(std::string &command, const std::strin
 
 }
 
-_InternalProtocol_InternalClient ProtoSerializer::createInternalConnect(const _InternalProtocol_Device &device) {
-	_InternalProtocol_InternalClient internalClientMessage;
-	_InternalProtocol_DeviceConnect* deviceConnectMessage = internalClientMessage.mutable_deviceconnect();
-	_InternalProtocol_Device *devicePtr = deviceConnectMessage->mutable_device(); // Returns pointer to device field in deviceConnectMessage
-	devicePtr->CopyFrom(device);
+InternalProtocol_InternalClient ProtoSerializer::createInternalConnect(const InternalProtocol_Device &device) {
+	InternalProtocol_InternalClient internalClientMessage = InternalProtocol_InternalClient_init_zero;
+
+	internalClientMessage.which_MessageType = InternalProtocol_InternalClient_deviceConnect_tag;
+	memcpy(&internalClientMessage.MessageType.deviceConnect.device, &device, sizeof(InternalProtocol_Device));
+
 	return internalClientMessage;
 }
 
@@ -65,16 +78,23 @@ int ProtoSerializer::checkConnectResponse(const std::string &internalServerConne
 	if(internalServerConnectResponse.empty()) {
 		return NOT_OK;
 	}
-	_InternalProtocol_InternalServer internalServerMessage;
+	InternalProtocol_InternalServer internalServerMessage = InternalProtocol_InternalServer_init_zero;
 
-	if (not internalServerMessage.ParseFromString(internalServerConnectResponse)) {
+	std::vector<uint8_t> messageVector(internalServerConnectResponse.begin(), internalServerConnectResponse.end());
+	uint8_t *buffer = &messageVector[0];
+
+	pb_istream_t stream = pb_istream_from_buffer(buffer, internalServerConnectResponse.size());
+
+	if (!pb_decode(&stream, InternalProtocol_InternalServer_fields, &internalServerMessage)) {
+		digitalWrite(LED_D0, HIGH); // Debug
 		return NOT_OK;
 	}
 
-	if (internalServerMessage.has_deviceconnectresponse()) {
-		const auto& deviceConnectResponse = internalServerMessage.deviceconnectresponse();
-		if(google::protobuf::util::MessageDifferencer::Equals(deviceConnectResponse.device(),
-															  device)) {
+	if (internalServerMessage.which_MessageType == InternalProtocol_InternalServer_deviceConnectResponse_tag) {
+		const InternalProtocol_DeviceConnectResponse deviceConnectResponse = internalServerMessage.MessageType.deviceConnectResponse;
+		if(strcmp(deviceConnectResponse.device.deviceName, device.deviceName) != 0 || strcmp(deviceConnectResponse.device.deviceRole, device.deviceRole) != 0  ||
+			deviceConnectResponse.device.deviceType != device.deviceType || deviceConnectResponse.device.module != device.module || 
+			deviceConnectResponse.device.priority != device.priority){
 			return DEVICE_INCORRECT;
 		}
 		return OK;

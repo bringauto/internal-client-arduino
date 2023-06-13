@@ -39,7 +39,7 @@ public:
 	 * @brief Returns current device
 	 * @return device
 	 */
-	_InternalProtocol_Device getDevice() { return device_; }
+	InternalProtocol_Device getDevice() { return device_; }
 
 	/**
 	 * @brief Reads 4 bytes, that contains the length of a message that follows it in socket
@@ -95,7 +95,7 @@ private:
 	/// Server address saved for reconnecting
 	int8_t serverAddress_[4];
 	/// Protobuf Device message
-	_InternalProtocol_Device device_ {};
+	InternalProtocol_Device device_ {};
 	/// Command data pointer
 	std::unique_ptr<char[]> commandData_ {};
 	/// Size of commandData_

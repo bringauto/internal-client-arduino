@@ -1,13 +1,13 @@
 #include <Communication.hpp>
-#include <helpers/EnumMappers.hpp>
-#include <protobuf/ProtoSerializer.hpp>
+#include <EnumMappers.hpp>
+#include <ProtoSerializer.hpp>
 
 #include <ic_error_codes.h>
 
 
 int Communication::sendConnectMessage(Context *context) {
 	auto internalConnect = protobuf::ProtoSerializer::createInternalConnect(context->getDevice());
-	auto connectMessage = protobuf::ProtoSerializer::serializeProtobufMessageToBuffer(internalConnect);
+	auto connectMessage = protobuf::ProtoSerializer::serializeInternalClientMessageToBuffer(internalConnect);
 	if (context->sendMessage(connectMessage) <= 0) {
 		return NOT_OK;
 	}

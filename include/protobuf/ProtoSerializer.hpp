@@ -13,14 +13,14 @@ namespace protobuf {
 class ProtoSerializer {
 public:
 	/**
-	 * @brief Serialize any Protobuf message into buffer structure
+	 * @brief Serialize Internal client message into buffer structure
 	 *
 	 * Buffer must be freed after use!
 	 *
-	 * @param protobufMessage Protobuf message
+	 * @param internalClientMessage Internal client message
 	 * @return buffer structure with allocated data pointer
 	 */
-	static struct buffer serializeProtobufMessageToBuffer(const _InternalProtocol_InternalClient &protobufMessage);
+	static struct buffer serializeInternalClientMessageToBuffer(InternalProtocol_InternalClient &internalClientMessage);
 
 	/**
 	 * @brief Combines serialized status data and device into Internal Client status message
@@ -30,8 +30,8 @@ public:
 	 *
 	 * @return Internal Client message containing Status
 	 */
-	static _InternalProtocol_InternalClient
-	createInternalStatus(const struct buffer &statusData, const _InternalProtocol_Device &device);
+	static InternalProtocol_InternalClient
+	createInternalStatus(const struct buffer &statusData, const InternalProtocol_Device &device);
 
 	/**
 	 * @brief Creates Internal Client connect message
@@ -40,7 +40,7 @@ public:
 	 *
 	 * @return Internal Client message containing DeviceConnect
 	 */
-	static _InternalProtocol_InternalClient createInternalConnect(const _InternalProtocol_Device &device);
+	static InternalProtocol_InternalClient createInternalConnect(const InternalProtocol_Device &device);
 
 	/**
 	 * @brief Check if Internal Server message contains ConnectResponse and if is targeted for current device
@@ -52,7 +52,7 @@ public:
 	 * @return DEVICE_INCORRECT if target device is different than current device
 	 * @return NOT_OK if message cannot be parsed or doesn't contain connect response
 	 */
-	static int checkConnectResponse(const std::string &internalServerConnectResponse, const _InternalProtocol_Device& device);
+	static int checkConnectResponse(const std::string &internalServerConnectResponse, const InternalProtocol_Device& device);
 
 	/**
 	 * @brief Check if Internal Server message contains Device Command and if is targeted for current device
@@ -68,7 +68,7 @@ public:
 	 * @return NOT_OK if message is empty
 	 */
 	static int checkAndParseCommand(std::string &command, const std::string &internalServerCommand,
-									const _InternalProtocol_Device& device);
+									const InternalProtocol_Device& device);
 
 };
 
