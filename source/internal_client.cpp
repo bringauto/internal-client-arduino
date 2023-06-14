@@ -5,8 +5,6 @@
 
 #include <internal_client.h>
 
-#include <thread>
-#include <future>
 #include <cstring>
 
 
@@ -53,37 +51,25 @@ int send_status(void *context, const struct buffer status, unsigned timeout) {
 																				 currentContext->getDevice());
 	struct buffer statusMessage = protobuf::ProtoSerializer::serializeInternalClientMessageToBuffer(internalClientMessage);
 
-	int rc = OK;
-	auto threadStatus = std::async(std::launch::async, [&]() {
-		if (currentContext->sendMessage(statusMessage) <= 0) {
-			rc = NOT_OK;
-		}
-	}).wait_for(std::chrono::seconds(timeout));
-
-	if (threadStatus == std::future_status::timeout) {
-		deallocate(&statusMessage);
-		return TIMEOUT_OCCURRED;
-	} else if (rc == NOT_OK) {
+	if (currentContext->sendMessage(statusMessage) <= 0){
 		deallocate(&statusMessage);
 		return NOT_OK;
 	}
 
 	std::string internalServerMessageString {};
-	threadStatus = std::async(std::launch::async, [&]() {
-		uint32_t commandSize = currentContext->readSizeFromSocket();
-		if (commandSize == 0) {    // Begin reconnect sequence
-			rc = Communication::startReconnectSequence(currentContext, statusMessage, &commandSize);
-		}
-		if (rc == OK) {
-			internalServerMessageString = currentContext->readMessageFromSocket(commandSize);
-		}
-	}).wait_for(std::chrono::seconds(timeout));
+	int rc;
+
+	uint32_t commandSize = currentContext->readSizeFromSocket();
+	if (commandSize == 0) {    // Begin reconnect sequence
+		rc = Communication::startReconnectSequence(currentContext, statusMessage, &commandSize);
+	}
+	if (rc == OK) {
+		internalServerMessageString = currentContext->readMessageFromSocket(commandSize);
+	}
 
 	deallocate(&statusMessage);
 
-	if (threadStatus == std::future_status::timeout) {
-		return TIMEOUT_OCCURRED;
-	} else if (rc != OK) {
+	if (rc != OK) {
 		return rc;
 	}
 
