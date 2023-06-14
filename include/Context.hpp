@@ -46,7 +46,7 @@ public:
 	 *
 	 * @return size in bytes of the next message
 	 */
-	uint32_t readSizeFromSocket() const;
+	uint32_t readSizeFromSocket();
 
 	/**
 	 * @brief Reads from message from socket
@@ -55,7 +55,7 @@ public:
 	 * @param commandSize number of bytes to read
 	 * @return string containing the message
 	 */
-	std::string readMessageFromSocket(uint32_t commandSize) const;
+	std::string readMessageFromSocket(uint32_t commandSize);
 
 	/**
 	 * @brief Sends message in buffer and return number of bytes sent
@@ -63,7 +63,7 @@ public:
 	 * @param message buffer containing message that will be sent
 	 * @return number of bytes sent
 	 */
-	size_t sendMessage(struct buffer message) const;
+	size_t sendMessage(struct buffer message);
 
 	/**
 	 * @brief Save commandData
@@ -94,6 +94,7 @@ private:
 	EthernetClient socket_ {};
 	/// Server address saved for reconnecting
 	std::string serverAddress_;
+	unsigned serverPort_;
 	/// Protobuf Device message
 	InternalProtocol_Device device_ {};
 	/// Command data pointer
