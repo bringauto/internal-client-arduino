@@ -24,6 +24,6 @@ In current directory should be generated .zip, which can be used as internal cli
 
 # TODO
 
- - Finish TCP implementation with Arduino libraries in Context.cpp (and maybe internal_client.cpp)
- - Resolve using threads in send_status() function
+ - Think about timeouts in TCP communication implementation
+ - Debug internal_client implementation on Arduino Opta
  - Finish README
