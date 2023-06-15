@@ -57,6 +57,14 @@ This script will zip all neccessary internal-client library files in this repo a
 
  > The compile_and_upload script defautly compiles opta_implementation/opta_implementation.ino. If you want to compile different sketches you need to change the script.
 
+## Using arduino-cli serial monitor
+
+To use serial monitor (get output from Serial.print functions), run this command:
+
+```bash
+arduino-cli monitor -p <your_port>
+```
+
 # TODO
 
  - Think about timeouts in TCP communication implementation
