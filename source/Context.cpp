@@ -3,7 +3,6 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
-#include <Arduino.h>
 
 int Context::createConnection(const char *ipv4_address, unsigned int port){
 
@@ -42,7 +41,7 @@ void Context::setDevice(struct device_identification device) {
 }
 
 size_t Context::sendMessage(struct buffer message) {
-    socket_.print(message.size_in_bytes);
+    socket_.write((char *)(&message.size_in_bytes), sizeof(message.size_in_bytes));
     return socket_.write((char *) message.data, message.size_in_bytes);
 }
 
