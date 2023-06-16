@@ -82,7 +82,7 @@ typedef struct _InternalProtocol_DeviceConnectResponse {
     InternalProtocol_Device device;
 } InternalProtocol_DeviceConnectResponse;
 
-typedef PB_BYTES_ARRAY_T(128) InternalProtocol_DeviceStatus_statusData_t;
+typedef PB_BYTES_ARRAY_T(256) InternalProtocol_DeviceStatus_statusData_t;
 typedef struct _InternalProtocol_DeviceStatus {
     bool has_device;
     InternalProtocol_Device device;
@@ -97,7 +97,7 @@ typedef struct _InternalProtocol_InternalClient {
     } MessageType;
 } InternalProtocol_InternalClient;
 
-typedef PB_BYTES_ARRAY_T(128) InternalProtocol_DeviceCommand_commandData_t;
+typedef PB_BYTES_ARRAY_T(256) InternalProtocol_DeviceCommand_commandData_t;
 /* binary command data */
 typedef struct _InternalProtocol_DeviceCommand {
     bool has_device;
@@ -242,13 +242,13 @@ extern const pb_msgdesc_t InternalProtocol_Device_msg;
 #define InternalProtocol_Device_fields &InternalProtocol_Device_msg
 
 /* Maximum encoded size of messages (where known) */
-#define InternalProtocol_DeviceCommand_size      409
+#define InternalProtocol_DeviceCommand_size      537
 #define InternalProtocol_DeviceConnectResponse_size 280
 #define InternalProtocol_DeviceConnect_size      278
-#define InternalProtocol_DeviceStatus_size       409
+#define InternalProtocol_DeviceStatus_size       537
 #define InternalProtocol_Device_size             275
-#define InternalProtocol_InternalClient_size     412
-#define InternalProtocol_InternalServer_size     412
+#define InternalProtocol_InternalClient_size     540
+#define InternalProtocol_InternalServer_size     540
 
 #ifdef __cplusplus
 } /* extern "C" */
