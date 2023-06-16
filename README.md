@@ -1,5 +1,3 @@
-WIP
-
 # Requirements
 
  - curl
@@ -17,6 +15,8 @@ python ../../libs/nanopb/generator/nanopb_generator.py InternalProtocol.proto
 ```
 
 Now in current directory should be generated 2 new files: `InternalProtocol.pb.c` and `InternalProtocol.pb.h`. Include the header file to use InternalProtocol implementation. These generated files are moved in compiled directory. Some headers from nanopb submodule with universal purpose declarations are in source/nanopb directory.
+
+ > This generator uses InternalProtocol.options, where max sizes of some structures are defined to avoid using callbacks in nanopb. More about callbacks in nanopb [here](https://jpa.kapsi.fi/nanopb/docs/concepts.html). 
 
 ## Installing arduino-cli
 
@@ -69,4 +69,3 @@ arduino-cli monitor -p <your_port>
 
  - Think about timeouts in TCP communication implementation
  - Debug internal_client implementation on Arduino Opta
- - Finish README
