@@ -34,6 +34,7 @@ void setup(){
   void *context {};
 
   init_connection(&context, "10.170.0.58", 8881, device);
+  destroy_connection(&context);
 }
 
 void loop(){
