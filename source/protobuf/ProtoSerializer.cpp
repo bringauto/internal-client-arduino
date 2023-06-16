@@ -2,17 +2,27 @@
 
 #include <general_error_codes.h>
 #include <internal_client.h>
+#include <pb_encode.h>
 #include <pb_decode.h>
 
 #include <vector>
 
 namespace protobuf {
 struct buffer ProtoSerializer::serializeInternalClientMessageToBuffer(InternalProtocol_InternalClient &internalClientMessage) {
-	struct buffer message {};
-	if ((allocate(&message, sizeof(InternalProtocol_InternalClient) == OK))) {
-		memcpy(&message.data, &internalClientMessage, message.size_in_bytes);
+	struct buffer buffer;
+	pb_ostream_t size_stream = {0};
+	pb_encode(&size_stream, InternalProtocol_InternalClient_fields, &internalClientMessage);
+
+	if(allocate(&buffer, size_stream.bytes_written) != OK){
+		return buffer;
 	}
-	return message;
+	
+	pb_ostream_t stream = pb_ostream_from_buffer((pb_byte_t *) buffer.data, size_stream.bytes_written);
+	if(!pb_encode(&stream, InternalProtocol_InternalClient_fields, &internalClientMessage)){
+		Serial.println("Encoding failed");
+	}
+	buffer.size_in_bytes = stream.bytes_written;
+	return buffer;
 }
 
 InternalProtocol_InternalClient
@@ -21,8 +31,8 @@ ProtoSerializer::createInternalStatus(const struct buffer &statusData, const Int
 
 	internalClientMessage.which_MessageType = InternalProtocol_InternalClient_deviceStatus_tag;
 	memcpy(&internalClientMessage.MessageType.deviceStatus.statusData.bytes, statusData.data, statusData.size_in_bytes);
-
 	memcpy(&internalClientMessage.MessageType.deviceStatus.device, &device, sizeof(InternalProtocol_Device));
+	internalClientMessage.MessageType.deviceStatus.has_device = true;
 
 	return internalClientMessage;
 }
@@ -69,6 +79,7 @@ InternalProtocol_InternalClient ProtoSerializer::createInternalConnect(const Int
 
 	internalClientMessage.which_MessageType = InternalProtocol_InternalClient_deviceConnect_tag;
 	memcpy(&internalClientMessage.MessageType.deviceConnect.device, &device, sizeof(InternalProtocol_Device));
+	internalClientMessage.MessageType.deviceConnect.has_device = true;
 
 	return internalClientMessage;
 }
