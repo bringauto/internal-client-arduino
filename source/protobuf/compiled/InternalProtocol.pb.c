@@ -6,25 +6,25 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-PB_BIND(InternalProtocol_InternalClient, InternalProtocol_InternalClient, 2)
+PB_BIND(InternalProtocol_InternalClient, InternalProtocol_InternalClient, AUTO)
 
 
-PB_BIND(InternalProtocol_InternalServer, InternalProtocol_InternalServer, 2)
+PB_BIND(InternalProtocol_InternalServer, InternalProtocol_InternalServer, AUTO)
 
 
-PB_BIND(InternalProtocol_DeviceConnect, InternalProtocol_DeviceConnect, 2)
+PB_BIND(InternalProtocol_DeviceConnect, InternalProtocol_DeviceConnect, AUTO)
 
 
-PB_BIND(InternalProtocol_DeviceConnectResponse, InternalProtocol_DeviceConnectResponse, 2)
+PB_BIND(InternalProtocol_DeviceConnectResponse, InternalProtocol_DeviceConnectResponse, AUTO)
 
 
-PB_BIND(InternalProtocol_DeviceStatus, InternalProtocol_DeviceStatus, 2)
+PB_BIND(InternalProtocol_DeviceStatus, InternalProtocol_DeviceStatus, AUTO)
 
 
-PB_BIND(InternalProtocol_DeviceCommand, InternalProtocol_DeviceCommand, 2)
+PB_BIND(InternalProtocol_DeviceCommand, InternalProtocol_DeviceCommand, AUTO)
 
 
-PB_BIND(InternalProtocol_Device, InternalProtocol_Device, 2)
+PB_BIND(InternalProtocol_Device, InternalProtocol_Device, AUTO)
 
 
 

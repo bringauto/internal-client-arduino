@@ -56,9 +56,9 @@ typedef struct _InternalProtocol_Device {
     /* *
  name of role that the device provides, serves for distinction of devices
  important in device connection, where only single device of a deviceRole type can be connected to a module. */
-    char deviceRole[128];
+    pb_callback_t deviceRole;
     /* device name */
-    char deviceName[128];
+    pb_callback_t deviceName;
     /* Priority of the device. Max priority = 0 */
     uint32_t priority;
 } InternalProtocol_Device;
@@ -82,11 +82,10 @@ typedef struct _InternalProtocol_DeviceConnectResponse {
     InternalProtocol_Device device;
 } InternalProtocol_DeviceConnectResponse;
 
-typedef PB_BYTES_ARRAY_T(256) InternalProtocol_DeviceStatus_statusData_t;
 typedef struct _InternalProtocol_DeviceStatus {
     bool has_device;
     InternalProtocol_Device device;
-    InternalProtocol_DeviceStatus_statusData_t statusData;
+    pb_callback_t statusData;
 } InternalProtocol_DeviceStatus;
 
 typedef struct _InternalProtocol_InternalClient {
@@ -97,12 +96,11 @@ typedef struct _InternalProtocol_InternalClient {
     } MessageType;
 } InternalProtocol_InternalClient;
 
-typedef PB_BYTES_ARRAY_T(256) InternalProtocol_DeviceCommand_commandData_t;
 /* binary command data */
 typedef struct _InternalProtocol_DeviceCommand {
     bool has_device;
     InternalProtocol_Device device;
-    InternalProtocol_DeviceCommand_commandData_t commandData;
+    pb_callback_t commandData;
 } InternalProtocol_DeviceCommand;
 
 typedef struct _InternalProtocol_InternalServer {
@@ -142,16 +140,16 @@ extern "C" {
 #define InternalProtocol_InternalServer_init_default {0, {InternalProtocol_DeviceConnectResponse_init_default}}
 #define InternalProtocol_DeviceConnect_init_default {false, InternalProtocol_Device_init_default}
 #define InternalProtocol_DeviceConnectResponse_init_default {_InternalProtocol_DeviceConnectResponse_ResponseType_MIN, false, InternalProtocol_Device_init_default}
-#define InternalProtocol_DeviceStatus_init_default {false, InternalProtocol_Device_init_default, {0, {0}}}
-#define InternalProtocol_DeviceCommand_init_default {false, InternalProtocol_Device_init_default, {0, {0}}}
-#define InternalProtocol_Device_init_default     {_InternalProtocol_Device_Module_MIN, 0, "", "", 0}
+#define InternalProtocol_DeviceStatus_init_default {false, InternalProtocol_Device_init_default, {{NULL}, NULL}}
+#define InternalProtocol_DeviceCommand_init_default {false, InternalProtocol_Device_init_default, {{NULL}, NULL}}
+#define InternalProtocol_Device_init_default     {_InternalProtocol_Device_Module_MIN, 0, {{NULL}, NULL}, {{NULL}, NULL}, 0}
 #define InternalProtocol_InternalClient_init_zero {0, {InternalProtocol_DeviceConnect_init_zero}}
 #define InternalProtocol_InternalServer_init_zero {0, {InternalProtocol_DeviceConnectResponse_init_zero}}
 #define InternalProtocol_DeviceConnect_init_zero {false, InternalProtocol_Device_init_zero}
 #define InternalProtocol_DeviceConnectResponse_init_zero {_InternalProtocol_DeviceConnectResponse_ResponseType_MIN, false, InternalProtocol_Device_init_zero}
-#define InternalProtocol_DeviceStatus_init_zero  {false, InternalProtocol_Device_init_zero, {0, {0}}}
-#define InternalProtocol_DeviceCommand_init_zero {false, InternalProtocol_Device_init_zero, {0, {0}}}
-#define InternalProtocol_Device_init_zero        {_InternalProtocol_Device_Module_MIN, 0, "", "", 0}
+#define InternalProtocol_DeviceStatus_init_zero  {false, InternalProtocol_Device_init_zero, {{NULL}, NULL}}
+#define InternalProtocol_DeviceCommand_init_zero {false, InternalProtocol_Device_init_zero, {{NULL}, NULL}}
+#define InternalProtocol_Device_init_zero        {_InternalProtocol_Device_Module_MIN, 0, {{NULL}, NULL}, {{NULL}, NULL}, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define InternalProtocol_Device_module_tag       1
@@ -203,25 +201,25 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  device,            2)
 
 #define InternalProtocol_DeviceStatus_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  device,            1) \
-X(a, STATIC,   SINGULAR, BYTES,    statusData,        2)
-#define InternalProtocol_DeviceStatus_CALLBACK NULL
+X(a, CALLBACK, SINGULAR, BYTES,    statusData,        2)
+#define InternalProtocol_DeviceStatus_CALLBACK pb_default_field_callback
 #define InternalProtocol_DeviceStatus_DEFAULT NULL
 #define InternalProtocol_DeviceStatus_device_MSGTYPE InternalProtocol_Device
 
 #define InternalProtocol_DeviceCommand_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  device,            1) \
-X(a, STATIC,   SINGULAR, BYTES,    commandData,       2)
-#define InternalProtocol_DeviceCommand_CALLBACK NULL
+X(a, CALLBACK, SINGULAR, BYTES,    commandData,       2)
+#define InternalProtocol_DeviceCommand_CALLBACK pb_default_field_callback
 #define InternalProtocol_DeviceCommand_DEFAULT NULL
 #define InternalProtocol_DeviceCommand_device_MSGTYPE InternalProtocol_Device
 
 #define InternalProtocol_Device_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    module,            1) \
 X(a, STATIC,   SINGULAR, UINT32,   deviceType,        2) \
-X(a, STATIC,   SINGULAR, STRING,   deviceRole,        3) \
-X(a, STATIC,   SINGULAR, STRING,   deviceName,        4) \
+X(a, CALLBACK, SINGULAR, STRING,   deviceRole,        3) \
+X(a, CALLBACK, SINGULAR, STRING,   deviceName,        4) \
 X(a, STATIC,   SINGULAR, UINT32,   priority,          5)
-#define InternalProtocol_Device_CALLBACK NULL
+#define InternalProtocol_Device_CALLBACK pb_default_field_callback
 #define InternalProtocol_Device_DEFAULT NULL
 
 extern const pb_msgdesc_t InternalProtocol_InternalClient_msg;
@@ -242,13 +240,13 @@ extern const pb_msgdesc_t InternalProtocol_Device_msg;
 #define InternalProtocol_Device_fields &InternalProtocol_Device_msg
 
 /* Maximum encoded size of messages (where known) */
-#define InternalProtocol_DeviceCommand_size      537
-#define InternalProtocol_DeviceConnectResponse_size 280
-#define InternalProtocol_DeviceConnect_size      278
-#define InternalProtocol_DeviceStatus_size       537
-#define InternalProtocol_Device_size             275
-#define InternalProtocol_InternalClient_size     540
-#define InternalProtocol_InternalServer_size     540
+/* InternalProtocol_InternalClient_size depends on runtime parameters */
+/* InternalProtocol_InternalServer_size depends on runtime parameters */
+/* InternalProtocol_DeviceConnect_size depends on runtime parameters */
+/* InternalProtocol_DeviceConnectResponse_size depends on runtime parameters */
+/* InternalProtocol_DeviceStatus_size depends on runtime parameters */
+/* InternalProtocol_DeviceCommand_size depends on runtime parameters */
+/* InternalProtocol_Device_size depends on runtime parameters */
 
 #ifdef __cplusplus
 } /* extern "C" */
