@@ -1,2 +1,5 @@
 internal-client-arduino/
 internal-client-arduino.zip
+arduino-cli
+.idea
+venv

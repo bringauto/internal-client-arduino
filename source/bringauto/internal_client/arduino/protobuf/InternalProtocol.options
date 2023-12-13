@@ -1,0 +1,4 @@
+InternalProtocol.Device.deviceName           max_size:128
+InternalProtocol.Device.deviceRole           max_size:128
+InternalProtocol.DeviceStatus.statusData     max_size:700
+InternalProtocol.DeviceCommand.commandData   max_size:1024

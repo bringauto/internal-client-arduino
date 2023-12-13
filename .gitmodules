@@ -1,3 +1,6 @@
 [submodule "libs/nanopb"]
 	path = libs/nanopb
 	url = https://github.com/nanopb/nanopb.git
+[submodule "libs/fleet-protocol"]
+	path = libs/fleet-protocol
+	url = https://github.com/bringauto/fleet-protocol.git
